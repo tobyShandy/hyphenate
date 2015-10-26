@@ -18,5 +18,6 @@
                 #:omit-string (string? . -> . any/c)
                 #:omit-txexpr (txexpr? . -> . any/c)) . ->* . xexpr/c)]
  reset-patterns
+ set-local-patterns
  [word->hyphenation-points ((string?) ((or/c #f exact-nonnegative-integer?)(or/c #f exact-nonnegative-integer?)(or/c #f exact-nonnegative-integer?)) . ->* . (listof string?))]
  [exception-word? (string? . -> . boolean?)])

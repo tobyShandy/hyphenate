@@ -3,7 +3,7 @@
 (include-without-lang-line "main-helper.rkt")
 (require typed/sugar/define racket/string racket/list racket/bool)
 (require "patterns-hashed.rkt" "exceptions.rkt" "core-predicates.rkt")
-(provide hyphenate unhyphenate reset-patterns word->hyphenation-points exception-word? exception-words?)
+(provide set-local-patterns hyphenate unhyphenate reset-patterns word->hyphenation-points exception-word? exception-words?)
 
 ;; module data, define now but set! them later (because they're potentially big & slow)
 (define: patterns : Pattern-Hash (make-hash))
@@ -33,12 +33,21 @@
 
 (define-syntax-rule (hash-empty? h) (zero? (hash-count h)))
 
+; We demote "hashed-patterns" from set value to default parameter value.
+(define: current-patterns : Pattern-Hash (make-parameter hashed-patterns))
+
+; Simple wrapper to keep verbosity low in our pollen.rkt file.
+(define (set-local-patterns v)
+  (current-patterns v)
+  (reset-patterns))
+
 (define/typed (initialize-patterns)
   (-> Void)
   (when (hash-empty? pattern-cache)
     (for-each add-exception default-exceptions))
   (when (hash-empty? patterns)
-    (set! patterns hashed-patterns)))
+    ; We replace hashed-patterns by a parameter.
+    (set! patterns (current-patterns))))
 
 (define/typed (reset-patterns)
   (-> Void)
@@ -262,6 +271,3 @@
   (hyphenate "supercalifragilisticexpialidocious" "-")
   #;(define t "supercalifragilisticexpialidocious") 
   #;(hyphenate t "-"))
-
-
-
